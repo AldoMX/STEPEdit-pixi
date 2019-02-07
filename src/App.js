@@ -26,10 +26,11 @@ class App extends Component {
     document.removeEventListener('resize', this.onResize);
   }
 
-  onDrop = (event) => {
-    console.dir(event.dataTransfer.files);
-    event.preventDefault();
-  }
+  onDrop =
+      (event) => {
+        console.dir(event.dataTransfer.files);
+        event.preventDefault();
+      }
 
   onResize =
       (event) => {
@@ -42,9 +43,10 @@ class App extends Component {
         }, 250);
       }
 
-  preventDefault = (event) => {
-    event.preventDefault();
-  }
+  preventDefault =
+      (event) => {
+        event.preventDefault();
+      }
 
   updateBounds =
       (width, height) => {

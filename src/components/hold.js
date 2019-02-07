@@ -76,7 +76,7 @@ class Hold extends Component {
     const tailMask = this.getTailMask(x, y + maskY, 64, 64 + bodyHeight);
     return (
       <Container anchor={anchor} x={x} y={y}>
-        <Sprite texture={tail} y={height} mask ={tailMask} />
+        <Sprite texture={tail} y={height} mask={tailMask} />
         <Sprite texture={body} y={maskY} height={bodyHeight} />
         <Sprite texture={head} y={0} />
       </Container>
