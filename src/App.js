@@ -1,16 +1,20 @@
-import {AppConsumer, Container, Stage} from '@inlet/react-pixi';
 import React, {Component} from 'react';
+import {AppConsumer, Container, Stage} from '@inlet/react-pixi';
 
-import RotatingBunny from './components/rotating-bunny';
+import Note from './components/note';
 
 class App extends Component {
   state = {
     width: window.innerWidth,
     height: window.innerHeight,
+    isLoaded: false
   };
 
   componentDidMount() {
     window.addEventListener('resize', this.onResize);
+    Note.loadAssets(() => {
+      this.setState(() => ({isLoaded: true}));
+    });
   }
 
   componentWillUnmount() {
@@ -38,11 +42,20 @@ class App extends Component {
     return (
       <Stage width={width} height={height}>
         <Container x={width / 2} y={height / 2}>
-          <AppConsumer>
-            {app => <RotatingBunny app={app}/>}
-          </AppConsumer>
+          {this.renderAppConsumer()}
         </Container>
       </Stage>
+    );
+  }
+
+  renderAppConsumer() {
+    if (!this.state.isLoaded) {
+      return null;
+    }
+    return (
+      <AppConsumer>
+        {app => <Note ticker={app.ticker} skin='SKIN00' type='TAP' col='DOWNLEFT' />}
+      </AppConsumer>
     );
   }
 }
