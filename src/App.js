@@ -12,14 +12,23 @@ class App extends Component {
   };
 
   componentDidMount() {
-    window.addEventListener('resize', this.onResize);
+    document.addEventListener('dragover', this.preventDefault);
+    document.addEventListener('drop', this.onDrop);
+    document.addEventListener('resize', this.onResize);
     Note.loadAssets(() => {
       this.setState(() => ({isLoaded: true}));
     });
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.onResize);
+    document.removeEventListener('dragover', this.preventDefault);
+    document.removeEventListener('drop', this.onDrop);
+    document.removeEventListener('resize', this.onResize);
+  }
+
+  onDrop = (event) => {
+    console.dir(event.dataTransfer.files);
+    event.preventDefault();
   }
 
   onResize =
@@ -32,6 +41,10 @@ class App extends Component {
           this.onResizeTimeout = null;
         }, 250);
       }
+
+  preventDefault = (event) => {
+    event.preventDefault();
+  }
 
   updateBounds =
       (width, height) => {
