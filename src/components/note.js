@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Sprite} from '@inlet/react-pixi';
+import {Sprite, Container} from '@inlet/react-pixi';
 import * as PIXI from 'pixi.js'
 
 class Note extends Component {
@@ -31,7 +31,6 @@ class Note extends Component {
 
   tick =
       (delta) => {
-        console.log(delta);
         this.delta += delta;
         this.delta %= this.speed;
         const texture = this.getTexture();
@@ -49,7 +48,9 @@ class Note extends Component {
     const {texture} = this.state;
     const {anchor = [0.5, 0.5], x = 0, y = 0} = this.props;
     return (
-      <Sprite texture={texture} anchor={anchor} x={x} y={y} />
+      <Container anchor={anchor} x={x} y={y}>
+        <Sprite texture={texture} />
+      </Container>
     );
   }
 
