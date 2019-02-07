@@ -1,5 +1,5 @@
-const sizeByte = 8;
-const textDecoders = Map();
+const byteSize = 8;
+const textDecoders = new Map();
 const getTextDecoder = (encoding) => {
   if (typeof window.TextDecoder == 'undefined') {
     console.warn(
@@ -26,83 +26,83 @@ class DataReader {
   }
 
   getBytes(length) {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = new Uint8Array(this.dataView.buffer, this.offset, length);
-    skip(length);
+    this.skip(length);
     return value;
   }
 
   getBytesAsReader(length) {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const data = this.dataView.buffer.slice(this.offset, this.offset + length);
     const reader =
         new DataReader(data, this.defaultTextEncoding, this.isLittleEndian);
-    skip(length);
+    this.skip(length);
     return reader;
   }
 
   getText(length, encoding = this.defaultTextEncoding) {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const textDecoder = getTextDecoder(encoding);
     const data = this.dataView.buffer.slice(this.offset, this.offset + length);
     const value = textDecoder.decode(data).replace(/\0+$/, '');
-    skip(length);
+    this.skip(length);
     return value;
   }
 
   getDouble() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getFloat64(this.offset, this.isLittleEndian);
-    skipDouble();
+    this.skipDouble();
     return value;
   }
 
   getFloat() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getFloat32(this.offset, this.isLittleEndian);
-    skipFloat();
+    this.skipFloat();
     return value;
   }
 
   getInt8() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getInt8(this.offset);
-    skipInt8();
+    this.skipInt8();
     return value;
   }
 
   getInt16() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getInt16(this.offset, this.isLittleEndian);
-    skipInt16();
+    this.skipInt16();
     return value;
   }
 
   getInt32() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getInt32(this.offset, this.isLittleEndian);
-    skipInt32();
+    this.skipInt32();
     return value;
   }
 
   getUint8() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getUint8(this.offset);
-    skipUint8();
+    this.skipUint8();
     return value;
   }
 
   getUint16() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getUint16(this.offset, this.isLittleEndian);
-    skipUint16();
+    this.skipUint16();
     return value;
   }
 
   getUint32() {
-    throwIfOutOfRange();
+    this.throwIfOutOfRange();
     const value = this.dataView.getUint32(this.offset, this.isLittleEndian);
-    skipUint32();
+    this.skipUint32();
     return value;
   }
 
@@ -110,14 +110,14 @@ class DataReader {
     this.offset += Math.floor(length);
   }
 
-  skipDouble = (length = 1) => skip((length * 64) / sizeByte);
-  skipFloat = (length = 1) => skip((length * 32) / sizeByte);
-  skipInt8 = (length = 1) => skip((length * 8) / sizeByte);
-  skipInt16 = (length = 1) => skip((length * 16) / sizeByte);
-  skipInt32 = (length = 1) => skip((length * 32) / sizeByte);
-  skipUint8 = (length = 1) => skip((length * 8) / sizeByte);
-  skipUint16 = (length = 1) => skip((length * 16) / sizeByte);
-  skipUint32 = (length = 1) => skip((length * 32) / sizeByte);
+  skipDouble = (length = 1) => this.skip((length * 64) / byteSize);
+  skipFloat = (length = 1) => this.skip((length * 32) / byteSize);
+  skipInt8 = (length = 1) => this.skip((length * 8) / byteSize);
+  skipInt16 = (length = 1) => this.skip((length * 16) / byteSize);
+  skipInt32 = (length = 1) => this.skip((length * 32) / byteSize);
+  skipUint8 = (length = 1) => this.skip((length * 8) / byteSize);
+  skipUint16 = (length = 1) => this.skip((length * 16) / byteSize);
+  skipUint32 = (length = 1) => this.skip((length * 32) / byteSize);
 
   throwIfOutOfRange() {
     if (this.offset >= this.dataView.byteLength) {
