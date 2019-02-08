@@ -16,19 +16,6 @@ const DIVISION_NUM_STEP_B = 8;
 const DIVISION_NUM_STEP_C = 9;
 const DIVISION_STYLE_TYPE = 200;
 
-const DivisionIdNames = [
-  'num_perfect',
-  'num_great',
-  'num_good',
-  'num_bad',
-  'num_miss',
-  'num_step_g',
-  'num_step_w',
-  'num_step_a',
-  'num_step_b',
-  'num_step_c',
-];
-
 const METADATA_ID_MODIFIER_SPEED = 0;
 const METADATA_ID_MODIFIER_EW_RV = 1;
 const METADATA_ID_MODIFIER_AC_DC = 2;
@@ -351,8 +338,8 @@ export default class Nx20Parser {
         minValue = reader.getUint16();
         maxValue = reader.getUint16();
         if (minValue > 0 || maxValue > 0) {
-          division.set(DivisionIdNames[id].replace(/^num/, 'min'), minValue);
-          division.set(DivisionIdNames[id].replace(/^num/, 'max'), maxValue);
+          division.set(_.DivisionIdNames[id].replace(/^num/, 'min'), minValue);
+          division.set(_.DivisionIdNames[id].replace(/^num/, 'max'), maxValue);
         }
         break;
 

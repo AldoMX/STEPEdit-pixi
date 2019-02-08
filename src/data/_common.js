@@ -8,6 +8,19 @@ export const BoolYNValues = {
   false: 'N',
 };
 
+export const DivisionIdNames = [
+  'num_perfect',
+  'num_great',
+  'num_good',
+  'num_bad',
+  'num_miss',
+  'num_step_g',
+  'num_step_w',
+  'num_step_a',
+  'num_step_b',
+  'num_step_c',
+];
+
 export const NoteDivisionNames = [
   'G',
   'W',

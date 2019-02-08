@@ -106,6 +106,14 @@ export default class DataReader {
     return value;
   }
 
+  getUint32Array(length) {
+    const arr = new Uint32Array(length);
+    for (let i = 0; i < length; i++) {
+      arr[i] = this.getUint32();
+    }
+    return arr;
+  }
+
   skip(length) {
     this.offset += Math.floor(length);
   }
