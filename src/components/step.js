@@ -67,7 +67,7 @@ const isNoteOutOfBounds = (x, y, clientX, clientY) =>
 const isInBounds = (x, y, width, height, clientX, clientY) => clientX >= x &&
     clientX <= (x + width) && clientY >= y && clientY <= (y + height);
 
-class StepComponent extends Component {
+export default class StepComponent extends Component {
   clickHandlers = [];
   state = {
     components: [],
@@ -345,5 +345,3 @@ class StepComponent extends Component {
     });
   }
 }
-
-export default StepComponent;

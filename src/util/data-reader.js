@@ -17,7 +17,7 @@ const getTextDecoder = (encoding) => {
   return textDecoders.get(encoding);
 };
 
-class DataReader {
+export default class DataReader {
   constructor(data, defaultTextEncoding = 'utf-8', isLittleEndian = true) {
     this.offset = 0;
     this.defaultTextEncoding = defaultTextEncoding;
@@ -129,5 +129,3 @@ class DataReader {
     }
   }
 }
-
-export default DataReader;

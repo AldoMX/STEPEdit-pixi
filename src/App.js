@@ -9,7 +9,7 @@ import StepComponent from './components/step';
 
 const rootElement = document.getElementById('root');
 
-class App extends Component {
+export default class App extends Component {
   state = {
     step: null,
     width: rootElement.clientWidth,
@@ -102,5 +102,3 @@ class App extends Component {
     return (<StepComponent step={this.state.step} x={centerX} y={y} />);
   }
 }
-
-export default App;

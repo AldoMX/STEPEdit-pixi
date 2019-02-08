@@ -80,7 +80,7 @@ const StyleTypes = [
 
 const GetStyleTypeFromId = (id) => StyleTypes[id] || `Unrecognized (id: ${id})`;
 
-class Nx20Parser {
+export default class Nx20Parser {
   startColumn = 0;
   columns = 0;
   isLightmap = false;
@@ -447,5 +447,3 @@ class Nx20Parser {
     return row;
   }
 }
-
-export default Nx20Parser;

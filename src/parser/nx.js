@@ -5,7 +5,7 @@ import Nx20Parser from './nx20';
 const nx10Signature = 808540238;
 const nx20Signature = 808605774;
 
-class NxParser {
+export default class NxParser {
   constructor(filename, data) {
     this.reader = new DataReader(data, 'euc-kr');
     const signature = this.reader.getUint32();
@@ -30,5 +30,3 @@ class NxParser {
     this.step = step;
   }
 }
-
-export default NxParser;

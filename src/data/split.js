@@ -1,4 +1,4 @@
-class Split {
+export default class Split {
   activeBlockIndex = 0;
   blocks = [];
   metadata = new Map();
@@ -13,5 +13,3 @@ class Split {
     return this.blocks[this.activeBlockIndex];
   }
 }
-
-export default Split;
