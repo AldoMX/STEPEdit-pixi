@@ -50,9 +50,14 @@ export default PixiComponent('SplitGrid', {
     graphics.drawRect(x, y, width, height);
     graphics.endFill();
 
-    // Sidebar Background
+    // Sidebar (Left) Background
     graphics.beginFill(0xeeeeee);
     graphics.drawRect(x, y, sidebarWidthLeft, height);
+    graphics.endFill();
+
+    // Sidebar (Right) Background
+    graphics.beginFill(0xffffff);
+    graphics.drawRect(x + width, y, sidebarWidthRight, height);
     graphics.endFill();
 
     // // Column lines
@@ -125,9 +130,9 @@ export default PixiComponent('SplitGrid', {
     }
 
     // Measure lines
-    const measures = Math.floor(numRows / (beatSplit * beatMeasure));
+    const measures = Math.ceil(numRows / (beatSplit * beatMeasure));
     graphics.lineStyle(1, 0x222288);
-    for (let m = 1; m <= measures; m++) {
+    for (let m = 1; m < measures; m++) {
       const lineX = x;
       const lineWidth = width;
       const lineY = y + (m * beatHeight * speed * beatMeasure);
@@ -205,6 +210,6 @@ export default PixiComponent('SplitGrid', {
     graphics.lineTo(x + width, y + height);
     graphics.lineTo(x + width, y + 0.001);
     graphics.lineTo(x, y + 0.001);
-    graphics.lineTo(x + width + sidebarWidthRight, y + 0.001);
+    graphics.lineTo(x + width + sidebarWidthRight, y);
   }
 });
