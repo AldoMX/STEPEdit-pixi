@@ -12,11 +12,7 @@ const backgroundColors = [
 const beatHeight = 60;
 const columnWidth = 50;
 const noteWidth = 64;
-const sidebarWidthLeft = 60;
-const sidebarWidthRight = 160;
 const speed = 2;
-
-const numberFormat = new Intl.NumberFormat('en-US', {minimumFractionDigits: 3});
 
 export default PixiComponent('SplitGrid', {
   create: () => new Container(),
@@ -33,6 +29,7 @@ export default PixiComponent('SplitGrid', {
       measureMaxLength,
       numBlocks,
       numRows,
+      sidebarWidth,
       splitIndex,
       splitMaxLength,
       startMeasure,
@@ -40,7 +37,7 @@ export default PixiComponent('SplitGrid', {
     let {x, y} = newProps;
     const backgroundColor =
         backgroundColors[splitIndex % backgroundColors.length];
-    const width = sidebarWidthLeft + (columns * columnWidth) +
+    const width = sidebarWidth.left + (columns * columnWidth) +
         ((noteWidth - columnWidth) * 2) + (columns % 2 === 0 ? 20 : 0);
     const height = (beatHeight * speed) * (numRows / beatSplit);
     x -= width / 2;
@@ -52,18 +49,18 @@ export default PixiComponent('SplitGrid', {
 
     // Sidebar (Left) Background
     graphics.beginFill(0xeeeeee);
-    graphics.drawRect(x, y, sidebarWidthLeft, height);
+    graphics.drawRect(x, y, sidebarWidth.left, height);
     graphics.endFill();
 
     // Sidebar (Right) Background
     graphics.beginFill(0xffffff);
-    graphics.drawRect(x + width, y, sidebarWidthRight, height);
+    graphics.drawRect(x + width, y, sidebarWidth.right, height);
     graphics.endFill();
 
     // // Column lines
     // graphics.lineStyle(1, 0x222288);
     // for (let c = 1; c < columns; c++) {
-    //   const lineX = sidebarWidthLeft + (noteWidth - columnWidth) +
+    //   const lineX = sidebarWidth.left + (noteWidth - columnWidth) +
     //       (c * columnWidth) + (columns % 2 === 0 ? 10 : 0);
     //   graphics.moveTo(x + lineX, y);
     //   graphics.lineTo(x + lineX, y + height);
@@ -73,8 +70,8 @@ export default PixiComponent('SplitGrid', {
     const beats = Math.floor(numRows / beatSplit);
     graphics.lineStyle(1, 0x222288);
     for (let b = 1; b <= beats; b++) {
-      const lineX = x + sidebarWidthLeft;
-      const lineWidth = width - sidebarWidthLeft;
+      const lineX = x + sidebarWidth.left;
+      const lineWidth = width - sidebarWidth.left;
       const lineY = y + (b * beatHeight * speed);
       graphics.moveTo(lineX + 0.001, lineY + 0.001);
       graphics.lineTo(lineX + lineWidth, lineY);
@@ -83,8 +80,8 @@ export default PixiComponent('SplitGrid', {
     // 1/2 beat lines
     graphics.lineStyle(1, 0x222288, 0.5);
     for (let b = 0; b < beats; b++) {
-      let lineX = x + sidebarWidthLeft;
-      const lineWidth = width - sidebarWidthLeft;
+      let lineX = x + sidebarWidth.left;
+      const lineWidth = width - sidebarWidth.left;
       const lineY = y + (b * beatHeight * speed) + (beatHeight * speed * 0.5);
       const sections = columns * 8 + 1;
       const sectionWidth = lineWidth / sections;
@@ -100,8 +97,8 @@ export default PixiComponent('SplitGrid', {
     // // 1/4 beat lines
     // graphics.lineStyle(1, 0x222288, 0.5);
     // for (let b = 0; b < beats; b++) {
-    //   let lineX = x + sidebarWidthLeft;
-    //   const lineWidth = width - sidebarWidthLeft;
+    //   let lineX = x + sidebarWidth.left;
+    //   const lineWidth = width - sidebarWidth.left;
     //   const lineY = y + (b * beatHeight * speed) + (beatHeight * speed *
     //   0.25); const lineY2 = lineY + beatHeight * speed * 0.5; const sections
     //   = columns * 16 + 1; const sectionWidth = lineWidth / sections; for (let
@@ -118,13 +115,13 @@ export default PixiComponent('SplitGrid', {
 
     // Sidebar line
     graphics.lineStyle(1, 0xff0000);
-    graphics.moveTo(x + sidebarWidthLeft, y);
-    graphics.lineTo(x + sidebarWidthLeft, y + height);
+    graphics.moveTo(x + sidebarWidth.left, y);
+    graphics.lineTo(x + sidebarWidth.left, y + height);
 
     // Middle lines (double steps)
     graphics.lineStyle(1, 0xff0000);
     if (columns % 2 === 0) {
-      const middle = sidebarWidthLeft + ((width - sidebarWidthLeft) / 2);
+      const middle = sidebarWidth.left + ((width - sidebarWidth.left) / 2);
       graphics.moveTo(x + middle, y);
       graphics.lineTo(x + middle, y + height);
     }
@@ -163,18 +160,18 @@ export default PixiComponent('SplitGrid', {
       const measureText = container.addChild(new Text(
           padStart(m + startMeasure, measureMaxLength, '0'), measureTextStyle));
       measureText.anchor.set(0.5, 0.5);
-      measureText.x = x + (sidebarWidthLeft / 2);
+      measureText.x = x + (sidebarWidth.left / 2);
       measureText.y = y + (m * beatHeight * speed * beatMeasure) + 17;
       const blockText = container.addChild(new Text(
           padStart(`${blockIndex + 1} / ${numBlocks}`, blockMaxLength, '0'),
           blockTextStyle));
       blockText.anchor.set(0.5, 0.5);
-      blockText.x = x + (sidebarWidthLeft / 2);
+      blockText.x = x + (sidebarWidth.left / 2);
       blockText.y = y + (m * beatHeight * speed * beatMeasure) + 46;
       const splitText = container.addChild(new Text(
           padStart(splitIndex + 1, splitMaxLength, '0'), splitTextStyle));
       splitText.anchor.set(0.5, 0.5);
-      splitText.x = x + (sidebarWidthLeft / 2);
+      splitText.x = x + (sidebarWidth.left / 2);
       splitText.y = y + (m * beatHeight * speed * beatMeasure) + 75;
     }
 
@@ -184,22 +181,8 @@ export default PixiComponent('SplitGrid', {
       fontSize: 14,
       fontWeight: 'normal',
     };
-    const blockDataText = container.addChild(new Text(
-        [
-          `Start Time: ${numberFormat.format(blockData.startTime)}`,
-          blockData.delay !== 0 ?
-              `Freeze: ${numberFormat.format(blockData.delay)}` :
-              `Offset: ${numberFormat.format(blockData.offset)}`,
-          `BPM: ${numberFormat.format(blockData.bpm)}`,
-          `Beats per Measure: ${beatMeasure}`,
-          `Beat Split: ${beatSplit}`,
-          `Speed: ${numberFormat.format(blockData.speed)}${
-              blockData.isSmoothSpeed ? ' (S)' : ''}`,
-          `Scroll: ${numberFormat.format(blockData.scroll)}`,
-          `Num. Rows: ${numRows}`,
-          `Num. Division: ${blockData.numDivision}`,
-        ].join('\n'),
-        blockDataTextStyle));
+    const blockDataText =
+        container.addChild(new Text(blockData, blockDataTextStyle));
     blockDataText.x = x + width + 10;
     blockDataText.y = y + 10;
 
@@ -210,6 +193,6 @@ export default PixiComponent('SplitGrid', {
     graphics.lineTo(x + width, y + height);
     graphics.lineTo(x + width, y + 0.001);
     graphics.lineTo(x, y + 0.001);
-    graphics.lineTo(x + width + sidebarWidthRight, y);
+    graphics.lineTo(x + width + sidebarWidth.right, y);
   }
 });

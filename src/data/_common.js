@@ -1,3 +1,13 @@
+export const BoolOnOffValues = {
+  true: 'ON',
+  false: 'OFF',
+};
+
+export const BoolYNValues = {
+  true: 'Y',
+  false: 'N',
+};
+
 export const NoteDivisionNames = [
   'G',
   'W',
@@ -11,6 +21,10 @@ export const GetValidNoteDivisionId = (id) => {
     return id;
   }
   return 0;
+}
+
+export const GetNoteDivisionName = (id) => {
+  return NoteDivisionNames[id] || `Unrecognized Division (id: ${id})`;
 }
 
 export const NoteItemNames = [
@@ -45,6 +59,10 @@ export const GetValidNoteItemId = (id) => {
     return id;
   }
   return 0;
+}
+
+export const GetNoteItemName = (id) => {
+  return NoteItemNames[id] || `Unrecognized Item (id: ${id})`;
 }
 
 export const NoteItemSprites = [
@@ -132,6 +150,16 @@ export const NoteTypes = [
   'hold_head',
   'hold_body',
   'hold_tail',
+];
+
+export const NoteTypeNames = [
+  'Empty',
+  'Item',
+  'Division',
+  'Tap',
+  'Hold (Head)',
+  'Hold (Body)',
+  'Hold (Tail)',
 ];
 
 export const NoteTypesHold = [

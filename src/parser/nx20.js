@@ -59,8 +59,10 @@ const NOTE_FLAG_DISPLAY_TOP = 0x01;
 const NOTE_FLAG_DISPLAY_BOTTOM = 0x02;
 const NOTE_FLAG_DISPLAY_BOTTOM_25 = 0x04;
 const NOTE_FLAG_DISPLAY_SNAKE = 0x10;
+const NOTE_FLAG_DISPLAY_UNRECOGNIZED = 0xE8;
 
 const NOTE_FLAG_SLOT = 0xC0;
+const NOTE_FLAG_BRAIN_SHOWER = 0x3F;
 
 const NOTE_TYPE_ITEM = 0x01;
 const NOTE_TYPE_DIVISION = 0x02;
@@ -274,8 +276,8 @@ class Nx20Parser {
   readSplit() {
     const split = new Split();
     split.rawDataSelectBlock = this.reader.getUint8();
-    split.selectRandomBlockAtStart = (split.rawDataSelectBlock & 1) !== 0;
-    split.selectRandomBlockAtSplit = (split.rawDataSelectBlock & 2) !== 0;
+    split.selectRandomBlockAtStart = (split.rawDataSelectBlock & 0x80) !== 0;
+    split.selectRandomBlockAtSplit = (split.rawDataSelectBlock & 0x40) !== 0;
     split.rawDataBrainShower = this.reader.getUint8();
     split.rawDataPadding = this.reader.getUint16();
 
@@ -436,6 +438,9 @@ class Nx20Parser {
       }
 
       note.isPathSnake = (rawNote[1] & NOTE_FLAG_DISPLAY_SNAKE) !== 0;
+
+      note.rawDisplayUnrecognized = rawNote[1] & NOTE_FLAG_DISPLAY_UNRECOGNIZED;
+      note.rawBrainShower = rawNote[3] & NOTE_FLAG_BRAIN_SHOWER;
 
       row.set(column, note);
     }

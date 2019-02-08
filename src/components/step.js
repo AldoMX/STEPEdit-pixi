@@ -2,6 +2,7 @@ import {Container} from '@inlet/react-pixi';
 import React, {Component} from 'react';
 
 import * as _ from '../data/_common';
+import ClickSubscriber from '../util/click-subscriber';
 
 import HoldComponent from './hold';
 import NoteComponent from './note';
@@ -9,6 +10,9 @@ import NoteSpecialComponent from './note-special';
 import SplitGrid from './split-grid';
 
 const beatHeight = 60;
+const columnWidth = 50;
+const noteHeight = 64;
+const noteWidth = 64;
 const speed = 2;
 
 const divisionId = _.NoteTypes.indexOf('division');
@@ -57,7 +61,14 @@ const offsetsByCol = {
   ],
 };
 
+const isNoteOutOfBounds = (x, y, clientX, clientY) =>
+    !isInBounds(x, y, noteWidth, noteHeight, clientX, clientY);
+
+const isInBounds = (x, y, width, height, clientX, clientY) => clientX >= x &&
+    clientX <= (x + width) && clientY >= y && clientY <= (y + height);
+
 class StepComponent extends Component {
+  clickHandlers = [];
   state = {
     components: [],
     showMetaData: false,
@@ -81,7 +92,7 @@ class StepComponent extends Component {
   render() {
     const {components} = this.state;
     return (
-      <Container y={this.props.y - 32}>
+      <Container y={this.props.y}>
         {components.map(({componentType, props}, key) => React.createElement(componentType, { key, ...props }))}
       </Container>
     );
@@ -91,6 +102,10 @@ class StepComponent extends Component {
     console.log('Step Metadata:');
     console.dir(step.metadata);
     this.setStyle(step);
+    for (const handler of this.clickHandlers) {
+      ClickSubscriber.unsubscribe(handler);
+    }
+    this.clickHandlers.length = 0;
     const components = this.updateComponentData(step);
     this.setState({ step, components });
   }
@@ -132,33 +147,49 @@ class StepComponent extends Component {
 
   updateNotes(components, step) {
     const activeHoldProps = new Map();
-    let splitGridY = this.props.y;
+    let splitGridY = 0;
     for (const split of step.splits) {
       const {beatSplit, numRows} = split.activeBlock;
       for (const [rowIndex, row] of split.activeBlock.rows.entries()) {
         for (const [column, note] of row.entries()) {
-          let componentData;
+          const x = this.props.x + offsetsByCol[this.columns][column];
+          const y = splitGridY + beatHeight * speed * (rowIndex / beatSplit);
+          const onClickNote = ({clientX, clientY}) => {
+            clientY -= this.props.y;
+            if (isNoteOutOfBounds(x, y, clientX, clientY)) {
+              return;
+            }
+            const unrecognized = [
+              '---',
+              `Unrecognized Data (Display): ${note.rawDisplayUnrecognized}`,
+              `Unrecognized Data (Brain Shower): ${note.rawBrainShower}`,
+            ].join('\n');
+            alert(`Position: row ${rowIndex}, col ${column}\n${note}\n${
+                unrecognized}`);
+          };
+          this.clickHandlers.push(onClickNote);
+          ClickSubscriber.subscribe(onClickNote);
           if (!_.NoteTypesRegular.includes(note.type)) {
             if (note.type === itemId) {
-              componentData = {
+              const componentData = {
                 componentType: NoteSpecialComponent,
                 props: {
                   type: 'ITEM',
                   subType: _.NoteItemSprites[note.subType],
-                  x: this.props.x + offsetsByCol[this.columns][column],
-                  y: splitGridY + beatHeight * speed * (rowIndex / beatSplit),
+                  x,
+                  y,
                 },
               };
               components.push(componentData);
             } else if (note.type === divisionId) {
-              componentData = {
+              const componentData = {
                 componentType: NoteSpecialComponent,
                 props: {
                   type: 'DIVISION',
                   subType: _.NoteDivisionNames[note.subType],
                   numFrames: note.subType >= subTypeA ? 1 : 6,
-                  x: this.props.x + offsetsByCol[this.columns][column],
-                  y: splitGridY + beatHeight * speed * (rowIndex / beatSplit),
+                  x,
+                  y,
                 },
               };
               components.push(componentData);
@@ -167,36 +198,37 @@ class StepComponent extends Component {
             const isHead = note.type === _.NoteTypesHold[0];
             const isTail = note.type === _.NoteTypesHold[2];
             if (isHead || !activeHoldProps.has(column)) {
-              componentData = {
+              const componentData = {
                 componentType: HoldComponent,
                 props: {
                   skin: 'SKIN00',
                   type: note.canHold ? 'HOLD' : 'ROLL',
                   col: cols[column % cols.length],
                   height: 0,
-                  x: this.props.x + offsetsByCol[this.columns][column],
-                  y: splitGridY + beatHeight * speed * (rowIndex / beatSplit),
+                  x,
+                  y,
                 },
               };
               activeHoldProps.set(column, componentData.props);
               components.push(componentData);
             } else {
               const props = activeHoldProps.get(column);
-              const y = splitGridY + beatHeight * speed * (rowIndex / beatSplit);
+              const y =
+                  splitGridY + beatHeight * speed * (rowIndex / beatSplit);
               props.height = y - props.y;
             }
             if (isTail) {
               activeHoldProps.delete(column);
             }
           } else {
-            componentData = {
+            const componentData = {
               componentType: NoteComponent,
               props: {
                 skin: 'SKIN00',
                 type: 'TAP',
                 col: cols[column % cols.length],
-                x: this.props.x + offsetsByCol[this.columns][column],
-                y: splitGridY + beatHeight * speed * (rowIndex / beatSplit),
+                x,
+                y,
               },
             };
             components.push(componentData);
@@ -220,39 +252,91 @@ class StepComponent extends Component {
       maxBlocks = Math.max(maxBlocks, split.blocks.length);
       numMeasures += Math.ceil(numMeasuresSplit);
     }
+    const sidebarWidth = {left: 60, right: 160};
     const measureMaxLength = numMeasures.toString().length;
     const blockMaxLength = maxBlocks.toString().length;
     const splitMaxLength = step.splits.length.toString().length;
     let splitGridStartMeasure = 1;
-    let splitGridY = this.props.y;
+    let splitGridY = 0;
     step.splits.forEach((split, splitIndex) => {
+      const {columns} = this;
+      const blockData = split.activeBlock.toString();
+      const blockIndex = split.activeBlockIndex;
+      const numBlocks = split.blocks.length;
+      const x = this.props.x;
+      const y = splitGridY;
+      const onClickSplit = ({clientX, clientY}) => {
+        const gridWidth = sidebarWidth.left + (columns * columnWidth) +
+            ((noteWidth - columnWidth) * 2) + (columns % 2 === 0 ? 20 : 0);
+        clientY -= this.props.y;
+        if (isInBounds(
+                x - (gridWidth / 2), y, sidebarWidth.left, 96, clientX,
+                clientY)) {
+          split.activeBlockIndex++;
+          split.activeBlockIndex %= split.blocks.length;
+          if (blockIndex !== split.activeBlockIndex) {
+            this.setStep(this.props.step);
+          }
+          return;
+        }
+        if (isInBounds(
+                x + (gridWidth / 2), y, sidebarWidth.right, 180, clientX,
+                clientY)) {
+          const data = [
+            `Split ${splitIndex + 1}, Block ${blockIndex + 1}/${numBlocks}`,
+            '---',
+            `Random Block at Step Start: ${
+                _.BoolOnOffValues[split.selectRandomBlockAtStart]}`,
+            `Random Block at Split Start: ${
+                _.BoolOnOffValues[split.selectRandomBlockAtSplit]}`
+          ];
+          if (split.metadata.size > 0) {
+            for (const [key, value] of split.metadata.entries()) {
+              data.push(`Split Metadata, ${key}: ${value}`);
+            }
+          }
+          if (split.activeBlock.division.size > 0) {
+            data.push('---');
+            for (const [key, value] of split.activeBlock.division.entries()) {
+              data.push(`Division, ${key}: ${value}`);
+            }
+          }
+          data.push(`---\n${blockData}`);
+          data.push(
+              ...['---',
+                  `Unrecognized Data (Split, Select Block): ${
+                      split.rawDataSelectBlock & 0x3f}`,
+                  `Unrecognized Data (Split, Brain Shower): ${
+                      split.rawDataBrainShower}`,
+                  `Unrecognized Data (Split): ${split.rawDataPadding}`,
+                  `Unrecognized Data (Block): ${split.activeBlock.rawPadding}`,
+          ]);
+          alert(data.join('\n'));
+          return;
+        }
+      };
+      this.clickHandlers.push(onClickSplit);
+      ClickSubscriber.subscribe(onClickSplit);
+
       const {beatSplit, beatMeasure, numRows} = split.activeBlock;
       const componentData = {
         componentType: SplitGrid,
         props: {
-          columns: this.columns,
-          blockData: {
-            startTime: split.activeBlock.startTime,
-            bpm: split.activeBlock.bpm,
-            scroll: split.activeBlock.scroll,
-            delay: split.activeBlock.delay,
-            offset: split.activeBlock.offset,
-            speed: split.activeBlock.speed,
-            isSmoothSpeed: split.activeBlock.isSmoothSpeed,
-            numDivision: split.activeBlock.division.size,
-          },
-          blockIndex: split.activeBlockIndex,
+          columns,
+          blockData,
+          blockIndex,
           splitIndex,
           beatSplit,
           beatMeasure,
-          numBlocks: split.blocks.length,
+          numBlocks,
           numRows,
           measureMaxLength,
           blockMaxLength,
           splitMaxLength,
           startMeasure: splitGridStartMeasure,
-          x: this.props.x,
-          y: splitGridY,
+          sidebarWidth,
+          x,
+          y,
         },
       };
       components.push(componentData);

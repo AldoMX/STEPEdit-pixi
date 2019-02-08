@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Stage, Text} from '@inlet/react-pixi';
 import NxParser from './parser/nx';
+import ClickSubscriber from './util/click-subscriber';
 
 import {loadAssets} from './components/note';
 import {loadAssets as loadSpecialAssets} from './components/note-special';
@@ -18,6 +19,7 @@ class App extends Component {
   };
 
   componentDidMount() {
+    window.addEventListener('click', this.onClick, true);
     window.addEventListener('dragover', this.preventDefault, true);
     window.addEventListener('drop', this.onDrop, true);
     window.addEventListener('resize', this.onResize, true);
@@ -30,10 +32,15 @@ class App extends Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('click', this.onClick);
     window.removeEventListener('dragover', this.preventDefault);
     window.removeEventListener('drop', this.onDrop);
     window.removeEventListener('resize', this.onResize);
     window.removeEventListener('wheel', this.onWheel);
+  }
+
+  onClick = (event) => {
+    ClickSubscriber.trigger(event);
   }
 
   onDrop =

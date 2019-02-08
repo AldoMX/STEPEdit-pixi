@@ -1,4 +1,6 @@
-class Block {
+const numberFormat = new Intl.NumberFormat('en-US', {minimumFractionDigits: 3});
+
+export default class Block {
   division = new Map();
   rows = new Map();
   numRows = 0;
@@ -16,6 +18,20 @@ class Block {
   beatMeasure = 4;
 
   rawPadding = 0;
-}
 
-export default Block;
+  toString() {
+    return [
+      `Start Time: ${numberFormat.format(this.startTime)}`,
+      this.delay !== 0 ? `Freeze: ${numberFormat.format(this.delay)}` :
+                         `Offset: ${numberFormat.format(this.offset)}`,
+      `BPM: ${numberFormat.format(this.bpm)}`,
+      `Beats per Measure: ${this.beatMeasure}`,
+      `Beat Split: ${this.beatSplit}`,
+      `Speed: ${numberFormat.format(this.speed)}${
+          this.isSmoothSpeed ? ' (S)' : ''}`,
+      `Scroll: ${numberFormat.format(this.scroll)}`,
+      `Num. Rows: ${this.numRows}`,
+      `Num. Division: ${this.division.size}`,
+    ].join('\n');
+  }
+}
